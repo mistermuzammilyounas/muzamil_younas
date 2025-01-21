@@ -1,0 +1,233 @@
+<section class="hero-section" style="background-image: url('../assets/hero_bg.jpg')">
+  <div class="container">
+    <div class="hero-wrapper">
+      <div class="hero-content">
+        <h1 class="heading font-base">{{ section.settings.heading }}</h1>
+        <p class="font-base d-lg-block">{{ section.settings.description }}</p>
+        <p class="font-base d-lg-none">{{ section.settings.mobile-desc }}</p>
+        <div><button class="btn btn-default">{{ section.settings.button_text_2 }} <span><svg width="28" height="13" viewBox="0 0 28 13" xmlns="http://www.w3.org/2000/svg">
+          <path d="M1.11108 5.74402L0.361084 5.74402L0.361084 7.24402L1.11108 7.24402L1.11108 5.74402ZM27.1487 7.02435C27.4416 6.73146 27.4416 6.25658 27.1487 5.96369L22.3757 1.19072C22.0828 0.897826 21.6079 0.897826 21.315 1.19072C21.0221 1.48361 21.0221 1.95849 21.315 2.25138L25.5577 6.49402L21.315 10.7367C21.0221 11.0296 21.0221 11.5044 21.315 11.7973C21.6079 12.0902 22.0828 12.0902 22.3757 11.7973L27.1487 7.02435ZM1.11108 7.24402L26.6183 7.24402L26.6183 5.74402L1.11108 5.74402L1.11108 7.24402Z" fill="white"/>
+          </svg></span></button></div>
+      </div>
+    </div>
+    
+  </div>
+</section>
+<div style="background-color: #F5F5F5;">
+  <div class="container">
+    <p class="text-center">{{ section.settings.quote }}</p>
+  </div>
+</div>
+
+<section class="product-section">
+   <div class="container">
+      <h4 class="sub-heading">{{section.settings.sub_title}}</h4>
+     <div class="row">
+      <div class="product-grid">
+        {% paginate collections.all.products by 6 %}
+           {% for product in collections.all.products %}
+             <div class="product-item" data-handle="{{ product.handle }}">
+               <img src="{{ product.featured_image | img_url: '400x400' }}" alt="{{ product.title }}">
+               <button class="view-product" data-handle="{{ product.handle }}"><svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="11" cy="11" r="11" fill="#F8F8F8" fill-opacity="0.9"/>
+                <path d="M11.3457 7.04175V15.5033" stroke="black" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="round"/>
+                <path d="M7.11523 11.2725H15.5768" stroke="black" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="round"/>
+                </svg>
+                </button>
+             </div>
+           {% endfor %}
+      {% endpaginate %}
+    </div>
+     </div>
+   </div>
+</section>
+
+<div id="product-popup" class="product-popup">
+  <div class="product-content">
+    <span class="close-popup"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M5.03809 4.94354L13.5234 13.4288" stroke="black" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="round"/>
+      <path d="M5.03809 13.4285L13.5234 4.94325" stroke="black" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="round"/>
+      </svg>
+      </span>
+    <div id="popup-details"></div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function(){
+    const popup = document.getElementById("product-popup");
+    const popupDetails = document.getElementById("popup-details");
+    const closePopup = document.querySelector(".close-popup");
+    console.log('load');
+    function fetchProductDetails(handle) {
+      fetch(`/products/${handle}.js`)
+        .then((res) => res.json())
+        .then((product) => {
+          console.log("product", product);
+    
+          // Generate initial product HTML
+          let productHTML = `
+            <div class="product-wrapper">
+              <div class="product-image"><img src="${product.images[0]}" alt="${product.title}"></div>
+              <div class="product-detail">
+                <h2>${product.title}</h2>
+                <h4>${(product.price / 100).toFixed(2)} ${Shopify.currency.active}</h4>
+                <p>${product.description}</p>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Color</label>
+              <div class="form-radios" id="color-options">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Size</label>
+              <select class="form-select" id="size-options"></select>
+            </div>
+            <button id="add-to-cart" style="width:100%;" class="btn btn-default" data-variant-id="${product.variants[0].id}">
+              Add to Cart 
+              <span>
+                <svg width="28" height="13" viewBox="0 0 28 13" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M1.11108 5.74402L0.361084 5.74402L0.361084 7.24402L1.11108 7.24402L1.11108 5.74402ZM27.1487 7.02435C27.4416 6.73146 27.4416 6.25658 27.1487 5.96369L22.3757 1.19072C22.0828 0.897826 21.6079 0.897826 21.315 1.19072C21.0221 1.48361 21.0221 1.95849 21.315 2.25138L25.5577 6.49402L21.315 10.7367C21.0221 11.0296 21.0221 11.5044 21.315 11.7973C21.6079 12.0902 22.0828 12.0902 22.3757 11.7973L27.1487 7.02435ZM1.11108 7.24402L26.6183 7.24402L26.6183 5.74402L1.11108 5.74402L1.11108 7.24402Z" fill="white"/>
+                </svg>
+              </span>
+            </button>
+          `;
+    
+          popupDetails.innerHTML = productHTML;
+          popup.style.display = "flex";
+    
+          // Populate Color Options
+          const colorContainer = document.getElementById("color-options");
+          product.options[1].values.forEach((color) => {
+            const label = document.createElement("label");
+            label.className = "form-radio";
+            label.innerHTML = `
+              <input type="radio" name="color" value="${color}" />
+              <span class="radio-button" style="background-color: ${color};"></span>
+              ${color}
+            `;
+            colorContainer.appendChild(label);
+          });
+    
+          // Populate Size Options
+          const sizeSelect = document.getElementById("size-options");
+          product.options[0].values.forEach((size) => {
+            const option = document.createElement("option");
+            option.value = size;
+            option.textContent = size;
+            sizeSelect.appendChild(option);
+          });
+    
+          // Update Variant ID Based on Selections
+          function updateVariant() {
+            const selectedColor = document.querySelector('input[name="color"]:checked')?.value;
+            const selectedSize = sizeSelect.value;
+    
+            const matchingVariant = product.variants.find((variant) =>
+              variant.options.includes(selectedColor) && variant.options.includes(selectedSize)
+            );
+    
+            const addToCartButton = document.getElementById("add-to-cart");
+            if (matchingVariant) {
+              addToCartButton.setAttribute("data-variant-id", matchingVariant.id);
+              addToCartButton.disabled = !matchingVariant.available;
+            } else {
+              addToCartButton.setAttribute("data-variant-id", "");
+              addToCartButton.disabled = true;
+            }
+          }
+    
+          // Event Listeners for Option Changes
+          colorContainer.addEventListener("change", updateVariant);
+          sizeSelect.addEventListener("change", updateVariant);
+    
+          // Add to Cart Event
+          document.getElementById("add-to-cart").addEventListener("click", function () {
+            const variantId = this.getAttribute("data-variant-id");
+            addToCart(variantId);
+          });
+        })
+        .catch((error) => {
+          console.error("Error Fetch Products", error);
+        });
+    }
+    function addToCart(variantId){
+      const data = {
+        items: [
+          {
+            id: variantId,
+            quantity: 1
+          }
+        ]
+      };
+
+      fetch("/cart/add.js", {method:"post", headers:{"content-Type": "application/json"}, body : JSON.stringify(data)}).then(res=>res.json()).then(cart=>{
+        alert('Prodcut add to cart');
+        popup.style.display = "none";
+      })
+    }
+
+    document.querySelectorAll(".view-product").forEach(button=>{
+      button.addEventListener("click", function(){
+        const handle = this.getAttribute("data-handle");
+        console.log(handle);
+        fetchProductDetails(handle);
+      });
+    });
+    closePopup.addEventListener("click", function(e){
+      popup.style.display = "none";
+    });
+
+    popup.addEventListener("click", function(e){
+      if(e.target == popup){
+        popup.style.display = "none";
+      }
+    });
+  });  
+</script>
+
+{% schema %}
+  {
+    "name": "Section name",
+    "settings": [
+      
+        {
+        "type": "text",
+        "id": "heading",
+        "label": "Heading",
+        "default": "The Gift Guide"
+      },
+      {
+        "type": "textarea",
+        "id": "description",
+        "label": "Description",
+        "default": "Discover Joy: Your Ultimate Holiday Gift Destination. Explore our curated selection and find the perfect gifts to delight your loved ones this holiday season"
+      },
+      {
+        "type": "textarea",
+        "id": "mobile-desc",
+        "label": "Mobile Description",
+        "default": "Discover Joy: Your Ultimate Holiday Gift Destination."
+      },
+      {
+        "type": "text",
+        "id": "quote",
+        "label": "Quote",
+        "default": "SUSTAINABLE, ETHICALLY MADE CLOTHES IN SIZES XXS TO 6XL"
+      },
+      {
+        "type": "text",
+        "id": "sub_title",
+        "label": "Sub Heading",
+        "default": "Tisso vison in the wild"
+      },
+      {
+        "type": "text",
+        "id": "button_text_2",
+        "label": "Button Text 1",
+        "default": "Shop Now"
+      },
+    ]
+  }
+{% endschema %}

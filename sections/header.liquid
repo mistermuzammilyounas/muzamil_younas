@@ -159,6 +159,10 @@
         </h1>
       {%- endif -%}
     {%- endif -%}
+    
+    <div class="header-text">
+      <p>{{ section.settings.head_title }}</p>
+    </div>
 
     {%- liquid
       if section.settings.menu != blank
@@ -633,7 +637,13 @@
       "unit": "px",
       "label": "t:sections.all.padding.padding_bottom",
       "default": 20
-    }
+    },
+    {
+      "type": "text",
+      "id": "head_title",
+      "label": "Title",
+      "default": "Find the ideal gift for your loved ones."
+    },
   ],
   "blocks": [
     {
